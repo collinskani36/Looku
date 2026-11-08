@@ -1,10 +1,10 @@
-import { useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, ArrowRight, ArrowUpRight, Menu, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { SlotImg } from "@/components/slot-img";
-import type { ImageSlot } from "@/hooks/use-site-images";
+import { HERO_SLOTS, publicImageUrl, useSiteImages, type ImageSlot } from "@/hooks/use-site-images";
 
 const phoneNumber = "+254724422486";
 const whatsappUrl = `https://wa.me/${phoneNumber}`;
@@ -238,11 +238,79 @@ function ContactForm() {
   );
 }
 
+const HERO_INTERVAL_MS = 3000;
+const HERO_ALT = "A model in a dark tailored suit in a modern architectural setting";
+
+/** Full-bleed home banner. Cross-fades through every uploaded hero image every 3 seconds. */
+function HeroSlideshow() {
+  const { data } = useSiteImages();
+  const slides = HERO_SLOTS.flatMap((slot) => {
+    const row = data?.[slot];
+    return row ? [{ slot, src: publicImageUrl(row.image_path), mobileSrc: row.mobile_image_path ? publicImageUrl(row.mobile_image_path) : null, alt: row.alt || HERO_ALT, key: `${slot}-${row.updated_at}` }] : [];
+  });
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = slides.length;
+
+  useEffect(() => {
+    if (count < 2 || paused) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setActive((i) => (i + 1) % count), HERO_INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [count, paused, active]);
+
+  if (count === 0) {
+    return <div aria-hidden="true" className="absolute inset-0 h-full w-full bg-muted" />;
+  }
+
+  const current = active % count;
+  return (
+    <>
+      <div
+        className="absolute inset-0"
+        onPointerEnter={() => setPaused(true)}
+        onPointerLeave={() => setPaused(false)}
+      >
+        {slides.map((slide, i) => (
+          <picture key={slide.key}>
+            {/* Phones and portrait tablets get the tall image when one was uploaded. */}
+            {slide.mobileSrc && <source media="(max-width: 1023px)" srcSet={slide.mobileSrc} />}
+            <img
+              src={slide.src}
+              alt={slide.alt}
+              width={1792}
+              height={1024}
+              data-active={i === current}
+              aria-hidden={i !== current}
+              fetchPriority={i === 0 ? "high" : "auto"}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${slide.mobileSrc ? "object-center lg:object-[61%_center]" : "object-[61%_center]"} ${i === current ? "opacity-100" : "opacity-0"}`}
+            />
+          </picture>
+        ))}
+      </div>
+      {count > 1 && (
+        <div className="absolute bottom-7 left-6 z-10 flex gap-2 sm:left-10 lg:left-14">
+          {slides.map((slide, i) => (
+            <button
+              key={slide.key}
+              type="button"
+              aria-label={`Show slide ${i + 1} of ${count}`}
+              aria-current={i === current}
+              onClick={() => setActive(i)}
+              className={`h-[3px] w-8 transition-colors ${i === current ? "bg-paper" : "bg-paper/40 hover:bg-paper/70"}`}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export function HomePage() {
   return (
     <>
       <section className="hero-photo relative flex min-h-[680px] items-end overflow-hidden bg-charcoal sm:min-h-[760px] lg:min-h-[calc(100svh-76px)] lg:items-center">
-        <SlotImg slot="hero" alt="A model in a dark tailored suit in a modern architectural setting" width={1792} height={1024} fetchPriority="high" className="absolute inset-0 h-full w-full object-cover object-[61%_center]" />
+        <HeroSlideshow />
         <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 pb-20 pt-36 sm:px-10 sm:pb-28 lg:px-14 lg:py-24">
           <div className="max-w-[670px] text-paper">
             <SectionEyebrow light>Made in Kenya · Worn with confidence</SectionEyebrow>
