@@ -31,52 +31,61 @@
   --color-charcoal: var(--charcoal);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
+  --color-gold-deep: var(--gold-deep);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-sans: "DM Sans", Arial, sans-serif;
 }
 
 :root {
   --radius: 0.25rem;
-  --paper: oklch(0.975 0.008 88);
-  --ink: oklch(0.19 0.008 55);
-  --charcoal: oklch(0.245 0.009 55);
-  --gold: oklch(0.69 0.105 76);
-  --gold-soft: oklch(0.87 0.055 81);
+  /* White + navy surfaces, one royal-blue accent, gold kept as a fine accent */
+  --paper: oklch(0.985 0.004 250);
+  --ink: oklch(0.2 0.06 258);
+  --charcoal: oklch(0.265 0.065 258);
+  --gold: oklch(0.72 0.11 78);
+  --gold-soft: oklch(0.88 0.06 82);
+  --gold-deep: oklch(0.58 0.105 72);
+  --blue: oklch(0.47 0.17 262);
+  --blue-soft: oklch(0.93 0.03 255);
   --background: var(--paper);
-  --foreground: oklch(0.2 0.008 55);
-  --card: oklch(0.99 0.004 88);
+  --foreground: oklch(0.2 0.045 258);
+  --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
   --primary: var(--ink);
   --primary-foreground: var(--paper);
-  --secondary: oklch(0.945 0.012 83);
+  --secondary: oklch(0.96 0.01 250);
   --secondary-foreground: var(--ink);
-  --muted: oklch(0.945 0.012 83);
-  --muted-foreground: oklch(0.5 0.012 55);
-  --accent: oklch(0.91 0.04 81);
+  --muted: oklch(0.96 0.01 250);
+  --muted-foreground: oklch(0.5 0.025 255);
+  --accent: oklch(0.945 0.02 252);
   --accent-foreground: var(--ink);
   --destructive: oklch(0.55 0.2 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.87 0.012 75);
-  --input: oklch(0.87 0.012 75);
-  --ring: var(--gold);
-  --hero-overlay: linear-gradient(90deg, oklch(0.12 0.01 55 / 82%) 0%, oklch(0.12 0.01 55 / 58%) 43%, oklch(0.12 0.01 55 / 8%) 100%);
+  --border: oklch(0.9 0.012 250);
+  --input: oklch(0.9 0.012 250);
+  --ring: var(--blue);
+  --hero-overlay: linear-gradient(90deg, oklch(0.14 0.055 258 / 84%) 0%, oklch(0.14 0.055 258 / 58%) 43%, oklch(0.14 0.055 258 / 8%) 100%);
 }
 
 .dark {
-  --background: oklch(0.15 0.008 55);
-  --foreground: oklch(0.97 0.008 88);
-  --card: oklch(0.2 0.008 55);
+  --background: oklch(0.16 0.045 258);
+  --foreground: oklch(0.97 0.006 250);
+  --card: oklch(0.21 0.05 258);
   --card-foreground: var(--foreground);
-  --primary: oklch(0.92 0.02 80);
+  --primary: oklch(0.94 0.015 250);
   --primary-foreground: var(--ink);
-  --secondary: oklch(0.25 0.008 55);
+  --secondary: oklch(0.26 0.05 258);
   --secondary-foreground: var(--foreground);
-  --muted: oklch(0.25 0.008 55);
-  --muted-foreground: oklch(0.73 0.012 75);
-  --accent: oklch(0.27 0.02 75);
+  --muted: oklch(0.26 0.05 258);
+  --muted-foreground: oklch(0.74 0.02 250);
+  --accent: oklch(0.28 0.06 258);
   --accent-foreground: var(--foreground);
-  --border: oklch(0.34 0.012 75);
-  --input: oklch(0.34 0.012 75);
+  --border: oklch(0.35 0.05 258);
+  --input: oklch(0.35 0.05 258);
+  --blue: oklch(0.68 0.14 258);
+  --ring: var(--blue);
 }
 
 @layer base {
@@ -118,11 +127,14 @@
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 .form-field:focus {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-gold) 24%, transparent);
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-blue) 22%, transparent);
 }
 .button-gold { background: var(--color-gold); color: var(--color-ink); }
 .button-gold:hover { background: var(--color-gold-soft); }
+.button-blue { background: var(--color-blue); color: oklch(0.99 0 0); }
+.button-blue:hover { background: color-mix(in oklab, var(--color-blue) 82%, black); }
+.map-frame { border: 0; filter: saturate(0.9) contrast(1.02); }
 .button-on-dark {
   border: 1px solid color-mix(in oklab, var(--color-paper) 65%, transparent);
   background: transparent;

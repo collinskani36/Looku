@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowDown, ArrowRight, ArrowUpRight, Menu, Phone, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, Clock, MapPin, Menu, Navigation, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { SlotImg } from "@/components/slot-img";
@@ -8,6 +8,19 @@ import { HERO_SLOTS, publicImageUrl, useSiteImages, type ImageSlot } from "@/hoo
 
 const phoneNumber = "+254724422486";
 const whatsappUrl = `https://wa.me/${phoneNumber}`;
+
+/** Single source of truth for the shop pin. Change the coordinates here and every map/link updates. */
+const LOCATION = {
+  name: "DSQUARE OFFICIAL WEAR",
+  place: "Rupa’s Mall, Eldoret, Kenya",
+  hoursDays: "Monday – Friday",
+  hoursTime: "8:00 am – 6:00 pm",
+  lat: 0.5151765107216796,
+  lng: 35.27699545981593,
+} as const;
+const mapEmbedUrl = `https://www.google.com/maps?q=${LOCATION.lat},${LOCATION.lng}&z=17&output=embed`;
+const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${LOCATION.lat},${LOCATION.lng}`;
+const wazeUrl = `https://waze.com/ul?ll=${LOCATION.lat},${LOCATION.lng}&navigate=yes`;
 
 const navigation = [
   { label: "Home", to: "/" },
@@ -58,7 +71,7 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <Button asChild size="sm" className="button-gold h-10 rounded-none px-5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] shadow-none">
+          <Button asChild size="sm" className="button-blue h-10 rounded-none px-5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] shadow-none">
             <Link to="/contact">Enquire now <ArrowUpRight aria-hidden="true" /></Link>
           </Button>
         </nav>
@@ -74,7 +87,7 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Button asChild className="button-gold mt-4 w-full rounded-none shadow-none">
+            <Button asChild className="button-blue mt-4 w-full rounded-none shadow-none">
               <Link to="/contact" onClick={() => setMenuOpen(false)}>Enquire now <ArrowUpRight aria-hidden="true" /></Link>
             </Button>
           </div>
@@ -106,7 +119,8 @@ export function SiteFooter() {
         </div>
         <div>
           <h2 className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-gold">Find us</h2>
-          <p className="mt-5 text-sm leading-7 text-paper/70">Eldoret, Kenya</p>
+          <a href={directionsUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-start gap-2 text-sm leading-7 text-paper/70 transition-colors hover:text-paper"><MapPin size={15} className="mt-[0.4rem] shrink-0 text-gold" aria-hidden="true" />{LOCATION.place}</a>
+          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-7 text-paper/70"><Clock size={15} className="mt-[0.4rem] shrink-0 text-gold" aria-hidden="true" />{LOCATION.hoursDays}, {LOCATION.hoursTime}</p><br />
           <a href={`tel:${phoneNumber}`} className="mt-2 inline-flex items-center gap-2 text-sm text-paper/70 transition-colors hover:text-paper"><Phone size={15} aria-hidden="true" /> +254 724 422486</a>
           <a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-3 block text-sm text-paper/70 transition-colors hover:text-paper">WhatsApp enquiries <ArrowUpRight className="ml-1 inline" size={14} aria-hidden="true" /></a>
         </div>
@@ -126,11 +140,11 @@ export function SiteFrame({ children }: { children: ReactNode }) {
 }
 
 function SectionEyebrow({ children, light = false }: { children: ReactNode; light?: boolean }) {
-  return <p className={`text-[0.65rem] font-semibold uppercase tracking-[0.2em] ${light ? "text-gold-soft" : "text-gold"}`}>{children}</p>;
+  return <p className={`text-[0.65rem] font-semibold uppercase tracking-[0.2em] ${light ? "text-gold" : "text-blue"}`}>{children}</p>;
 }
 
 function ArrowLink({ to, children, light = false }: { to: string; children: ReactNode; light?: boolean }) {
-  return <Link to={to} className={`group inline-flex items-center gap-3 border-b pb-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] ${light ? "border-paper/40 text-paper" : "border-ink/35 text-ink"}`}>
+  return <Link to={to} className={`group inline-flex items-center gap-3 border-b pb-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] ${light ? "border-paper/40 text-paper hover:border-gold hover:text-gold" : "border-ink/35 text-ink hover:border-blue hover:text-blue"} transition-colors`}>
     {children}<ArrowRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
   </Link>;
 }
@@ -177,7 +191,7 @@ function CollectionGrid({ compact = false }: { compact?: boolean }) {
         </div>
         <div className="flex items-start justify-between gap-3 pt-4">
           <div><h3 className="editorial-heading text-2xl text-foreground sm:text-3xl">{item.title}</h3><p className="mt-1 text-xs text-muted-foreground">{item.note}</p></div>
-          <ArrowRight size={16} className="mt-2 shrink-0 text-gold transition-transform group-hover:translate-x-1" aria-hidden="true" />
+          <ArrowRight size={16} className="mt-2 shrink-0 text-gold-deep transition-transform group-hover:translate-x-1" aria-hidden="true" />
         </div>
       </Link>
     ))}
@@ -232,7 +246,7 @@ function ContactForm() {
         <label className="block text-xs font-medium text-foreground">Enquiry type<select className="form-field mt-2" name="type" required defaultValue=""><option value="" disabled>Select an enquiry</option><option>Men’s official wear</option><option>Designer suits</option><option>Custom tailoring</option><option>School uniforms</option><option>Institutional wear</option><option>Other</option></select></label>
       </div>
       <label className="block text-xs font-medium text-foreground">Message<textarea className="form-field mt-2 min-h-36 resize-y" name="message" required /></label>
-      <Button type="submit" className="button-gold h-12 rounded-none px-7 text-xs font-semibold uppercase tracking-[0.12em] shadow-none">Continue on WhatsApp <ArrowUpRight aria-hidden="true" /></Button>
+      <Button type="submit" className="button-blue h-12 rounded-none px-7 text-xs font-semibold uppercase tracking-[0.12em] shadow-none">Continue on WhatsApp <ArrowUpRight aria-hidden="true" /></Button>
       <p role="status" aria-live="polite" className="min-h-6 text-sm text-muted-foreground">{message}</p>
     </form>
   );
@@ -306,6 +320,38 @@ function HeroSlideshow() {
   );
 }
 
+function VisitSection() {
+  return (
+    <section id="visit" aria-labelledby="visit-heading" className="border-t border-border bg-background">
+      <div className="mx-auto grid max-w-[1440px] lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="flex items-center px-6 py-16 sm:px-10 lg:px-14 lg:py-24">
+          <div className="max-w-md">
+            <SectionEyebrow>Visit us</SectionEyebrow>
+            <h2 id="visit-heading" className="editorial-heading mt-5 text-5xl leading-[1.04] text-foreground sm:text-6xl">Find us at Rupa’s Mall.</h2>
+            <p className="mt-6 flex items-start gap-2 text-sm leading-7 text-muted-foreground sm:text-base"><MapPin size={18} className="mt-1 shrink-0 text-gold-deep" aria-hidden="true" />{LOCATION.place}</p>
+            <p className="mt-3 flex items-start gap-2 text-sm leading-7 text-muted-foreground sm:text-base"><Clock size={18} className="mt-1 shrink-0 text-gold-deep" aria-hidden="true" /><span>{LOCATION.hoursDays}<br />{LOCATION.hoursTime}</span></p>
+            <p className="mt-5 text-sm leading-7 text-muted-foreground">Come in to see the collections and speak with our team, or tap below and your maps app will take you to our exact pin.</p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Button asChild className="button-blue h-12 rounded-none px-6 text-xs font-semibold uppercase tracking-[0.12em] shadow-none"><a href={directionsUrl} target="_blank" rel="noreferrer">Get directions <Navigation aria-hidden="true" /></a></Button>
+              <Button asChild variant="outline" className="h-12 rounded-none border-ink/30 bg-transparent px-6 text-xs font-semibold uppercase tracking-[0.12em] text-ink shadow-none hover:border-blue hover:bg-transparent hover:text-blue"><a href={wazeUrl} target="_blank" rel="noreferrer">Open in Waze <ArrowUpRight aria-hidden="true" /></a></Button>
+            </div>
+          </div>
+        </div>
+        <div className="relative min-h-[380px] bg-muted lg:min-h-[560px]">
+          <iframe
+            title={`Map showing ${LOCATION.name} at ${LOCATION.place}`}
+            src={mapEmbedUrl}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+            className="map-frame absolute inset-0 h-full w-full"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function HomePage() {
   return (
     <>
@@ -315,7 +361,7 @@ export function HomePage() {
           <div className="max-w-[670px] text-paper">
             <SectionEyebrow light>Made in Kenya · Worn with confidence</SectionEyebrow>
             <h1 className="editorial-heading mt-6 text-6xl leading-[0.94] sm:text-7xl lg:text-[6.4rem]">DSQUARE<br />OFFICIAL WEAR</h1>
-            <p className="mt-7 text-sm font-medium tracking-[0.04em] text-paper/90 sm:text-base">Defined by Craft. Designed for Confidence.</p>
+            <p className="mt-7 text-sm font-medium tracking-[0.04em] text-paper/90 sm:text-base">Dress To Be Addressed.</p>
             <p className="mt-3 max-w-lg text-sm leading-7 text-paper/75">Exceptional tailoring, contemporary official wear and clothing crafted with purpose.</p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Button asChild className="button-gold h-12 rounded-none px-6 text-xs font-semibold uppercase tracking-[0.12em] shadow-none"><Link to="/collections">Explore collections <ArrowRight aria-hidden="true" /></Link></Button>
@@ -329,7 +375,7 @@ export function HomePage() {
       <section id="stories" className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-14">
           <SectionEyebrow>DSQUARE OFFICIAL WEAR LIMITED</SectionEyebrow>
-          <p className="text-xs text-muted-foreground">Eldoret, Kenya <span className="px-2 text-gold">/</span> Clothing with intention</p>
+          <p className="text-xs text-muted-foreground">Eldoret, Kenya <span className="px-2 text-gold-deep">/</span> Clothing with intention</p>
         </div>
       </section>
 
@@ -360,11 +406,12 @@ export function HomePage() {
       <section className="bg-card px-6 py-20 sm:px-10 lg:px-14 lg:py-24">
         <div className="mx-auto max-w-[1440px]"><SectionEyebrow>Why DSQUARE</SectionEyebrow><h2 className="editorial-heading mt-4 text-5xl text-foreground sm:text-6xl">The details make the difference.</h2>
           <div className="mt-12 grid gap-y-9 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            {["Quality Craftsmanship", "Professional Tailoring", "Institutional Solutions", "Attention to Detail"].map((title, i) => <div key={title} className="border-t border-border pt-5"><span className="text-xs text-gold">0{i + 1}</span><h3 className="editorial-heading mt-3 text-2xl text-foreground">{title}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{["Garments made with care in every seam and finish.", "Thoughtful fit and a considered approach to personal style.", "Coordinated clothing for schools and institutions.", "A careful eye from first measurement to final finish."][i]}</p></div>)}
+            {["Quality Craftsmanship", "Professional Tailoring", "Institutional Solutions", "Attention to Detail"].map((title, i) => <div key={title} className="border-t border-border pt-5"><span className="text-xs text-gold-deep">0{i + 1}</span><h3 className="editorial-heading mt-3 text-2xl text-foreground">{title}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{["Garments made with care in every seam and finish.", "Thoughtful fit and a considered approach to personal style.", "Coordinated clothing for schools and institutions.", "A careful eye from first measurement to final finish."][i]}</p></div>)}
           </div>
         </div>
       </section>
 
+      <VisitSection />
       <ContactCallout />
     </>
   );
@@ -397,7 +444,7 @@ export function CraftPage() {
         { n: "02", title: "Fabric & form", text: "Material and silhouette are considered together to shape the garment." },
         { n: "03", title: "Measure & make", text: "Measurements guide the cutting, construction and fitting process." },
         { n: "04", title: "The final finish", text: "Stitching, fit and finishing details are brought together with care." },
-      ].map((step) => <article key={step.n} className="border-t border-border pt-5"><span className="text-xs text-gold">{step.n}</span><h3 className="editorial-heading mt-4 text-3xl">{step.title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{step.text}</p></article>)}</div>
+      ].map((step) => <article key={step.n} className="border-t border-border pt-5"><span className="text-xs text-gold-deep">{step.n}</span><h3 className="editorial-heading mt-4 text-3xl">{step.title}</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">{step.text}</p></article>)}</div>
     </div></section>
     <EditorialStory eyebrow="A closer fit" title="Designed around you." copy="Custom tailoring starts with the person who will wear the garment. Every fitting brings the details closer to the right fit and feel." cta="Ask about tailoring" slot="fitting" alt="A tailor adjusts the shoulder of a fitted suit" to="/contact" />
     <EditorialStory eyebrow="For institutions" title="A shared sense of standard." copy="Uniforms bring people together. We work with schools and institutions on coordinated garments made with consistency and care." cta="Discuss an institutional order" slot="uniforms" alt="Students wearing coordinated uniforms outside a campus" reverse tone="white" to="/contact" />
@@ -409,7 +456,7 @@ export function ContactPage() {
   return <>
     <section className="bg-background px-6 py-14 sm:px-10 lg:px-14 lg:py-20"><div className="mx-auto max-w-[1440px]"><SectionEyebrow>Get in touch</SectionEyebrow><h1 className="editorial-heading mt-5 max-w-4xl text-5xl leading-[1.02] sm:text-7xl">Let’s create something exceptional.</h1><p className="mt-6 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8">Whether you need a custom suit, official wear or uniforms for your institution, our team is ready to hear from you.</p>
       <div className="mt-12 grid gap-12 lg:grid-cols-[1.3fr_0.7fr] lg:gap-20"><div><h2 className="editorial-heading mb-6 text-3xl">Tell us what you have in mind.</h2><ContactForm /></div>
-        <aside className="border-t border-border pt-6 lg:pl-10 lg:border-l lg:border-t-0"><SectionEyebrow>Direct enquiries</SectionEyebrow><a href={`tel:${phoneNumber}`} className="editorial-heading mt-5 block text-3xl text-foreground">+254 724 422486</a><p className="mt-2 text-sm text-muted-foreground">Call our team</p><a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-foreground underline decoration-gold underline-offset-4">WhatsApp us <ArrowUpRight size={15} aria-hidden="true" /></a><div className="mt-12 border-t border-border pt-6"><SectionEyebrow>Visit us</SectionEyebrow><p className="mt-4 text-lg text-foreground">Eldoret, Kenya</p><p className="mt-2 text-sm leading-7 text-muted-foreground">DSQUARE OFFICIAL WEAR LIMITED<br />Eldoret, Kenya</p></div></aside>
+        <aside className="border-t border-border pt-6 lg:pl-10 lg:border-l lg:border-t-0"><SectionEyebrow>Direct enquiries</SectionEyebrow><a href={`tel:${phoneNumber}`} className="editorial-heading mt-5 block text-3xl text-foreground">+254 724 422486</a><p className="mt-2 text-sm text-muted-foreground">Call our team</p><a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-foreground underline decoration-gold underline-offset-4">WhatsApp us <ArrowUpRight size={15} aria-hidden="true" /></a><div className="mt-12 border-t border-border pt-6"><SectionEyebrow>Visit us</SectionEyebrow><p className="mt-4 text-lg text-foreground">Rupa’s Mall, Eldoret</p><p className="mt-2 text-sm leading-7 text-muted-foreground">DSQUARE OFFICIAL WEAR LIMITED<br />{LOCATION.place}</p><p className="mt-4 text-sm leading-7 text-muted-foreground">Open {LOCATION.hoursDays}<br />{LOCATION.hoursTime}</p><a href={directionsUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-foreground underline decoration-gold underline-offset-4">Get directions <Navigation size={15} aria-hidden="true" /></a></div></aside>
       </div>
     </div></section>
     <section className="bg-charcoal px-6 py-16 text-paper sm:px-10 lg:px-14"><div className="mx-auto flex max-w-[1440px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"><div><SectionEyebrow light>Prefer a direct conversation?</SectionEyebrow><h2 className="editorial-heading mt-3 text-4xl">We’re one message away.</h2></div><Button asChild className="button-gold h-12 w-fit rounded-none px-6 text-xs font-semibold uppercase tracking-[0.12em] shadow-none"><a href={whatsappUrl} target="_blank" rel="noreferrer">Start a WhatsApp chat <ArrowUpRight aria-hidden="true" /></a></Button></div></section>
